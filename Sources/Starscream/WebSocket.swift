@@ -540,7 +540,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     open func write(string: String, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-         LogRequestManager.shared.sendlogRequest(log: Log(message: "Write string to websocket", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+         LogRequestManager.shared.sendlogRequest(log: [Log(message: "Write string to websocket", timestamp: Date(), transactionID: UUID())], with:  self.request.value(forHTTPHeaderField: "Authorization"))
         dequeueWrite(string.data(using: String.Encoding.utf8)!, code: .textFrame, writeCompletion: completion)
     }
 
@@ -554,7 +554,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     open func write(data: Data, completion: (() -> ())? = nil) {
         guard isConnected else { return }
-         LogRequestManager.shared.sendlogRequest(log: Log(message: "Write binary data to the websocket", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+         LogRequestManager.shared.sendlogRequest(log: [Log(message: "Write binary data to the websocket", timestamp: Date(), transactionID: UUID())], with:  self.request.value(forHTTPHeaderField: "Authorization"))
         dequeueWrite(data, code: .binaryFrame, writeCompletion: completion)
     }
     /**
@@ -713,12 +713,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     
     public func newBytesInStream() {
-        LogRequestManager.shared.sendlogRequest(log: Log(message: "starscream received new bytes", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+        LogRequestManager.shared.sendlogRequest(log: [Log(message: "starscream received new bytes", timestamp: Date(), transactionID: UUID())], with: self.request.value(forHTTPHeaderField: "Authorization"))
         processInputStream()
     }
     
     public func streamDidError(error: Error?) {
-        LogRequestManager.shared.sendlogRequest(log: Log(message: "starscream disconnected the stream object as it encounters error", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+        LogRequestManager.shared.sendlogRequest(log: [Log(message: "starscream disconnected the stream object as it encounters error", timestamp: Date(), transactionID: UUID())], with:  self.request.value(forHTTPHeaderField: "Authorization"))
         disconnectStream(error)
     }
 
@@ -839,7 +839,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 callbackQueue.async { [weak self] in
                     guard let self = self else { return }
                     self.onConnect?()
-                     LogRequestManager.shared.sendlogRequest(log: Log(message: "Starscream on connect", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+                     LogRequestManager.shared.sendlogRequest(log: [Log(message: "Starscream on connect", timestamp: Date(), transactionID: UUID())], with:  self.request.value(forHTTPHeaderField: "Authorization"))
                     self.delegate?.websocketDidConnect(socket: self)
                     self.advancedDelegate?.websocketDidConnect(socket: self)
                     NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
@@ -1183,7 +1183,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                     callbackQueue.async { [weak self] in
                         guard let self = self else { return }
                         self.onText?(str)
-                         LogRequestManager.shared.sendlogRequest(log: Log(message: "Starscream processing finished response of the audio buffer", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+                         LogRequestManager.shared.sendlogRequest(log: [Log(message: "Starscream processing finished response of the audio buffer", timestamp: Date(), transactionID: UUID())], with:  self.request.value(forHTTPHeaderField: "Authorization"))
                         self.delegate?.websocketDidReceiveMessage(socket: self, text: str)
                         self.advancedDelegate?.websocketDidReceiveMessage(socket: self, text: str, response: response)
                     }
@@ -1305,7 +1305,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         callbackQueue.async { [weak self] in
             guard let self = self else { return }
             self.onDisconnect?(error)
-            LogRequestManager.shared.sendlogRequest(log: Log(message: "Starscream performed disconnect", timestamp: Date(), transactionID: UUID()), with:  self.request.value(forHTTPHeaderField: "Authorization"))
+            LogRequestManager.shared.sendlogRequest(log: [Log(message: "Starscream performed disconnect", timestamp: Date(), transactionID: UUID())], with:  self.request.value(forHTTPHeaderField: "Authorization"))
             self.delegate?.websocketDidDisconnect(socket: self, error: error)
             self.advancedDelegate?.websocketDidDisconnect(socket: self, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
