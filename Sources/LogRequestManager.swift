@@ -21,14 +21,16 @@ class LogRequestManager {
         return dateFormatter.string(from: date)
     }
     
-    func sendlogRequest(param: [String: String], with token: String?) {
+    func sendlogRequest(log: Log, with token: String?) {
         var request = URLRequest(url: URL(string: "http://127.0.0.1:8090/logs")!)
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: param, options: [])
+        let jsonEncoder = JSONEncoder()
+        request.httpBody = try? jsonEncoder.encode(log)
+            //try? JSONSerialization.data(withJSONObject: log, options: [])
         request.addValue(UIDevice.current.identifierForVendor?.uuidString ?? "", forHTTPHeaderField: "Talk-Device-Identifier")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(token, forHTTPHeaderField: "Authorization")
-        print("Starscream Log request: \(param) token: \(String(describing: token))")
+        print("Starscream Log request: \(log) token: \(String(describing: token))")
 
         let session = URLSession(configuration: .default)
         let task = session.dataTask(with: request) { (data, response, error) in
