@@ -1,0 +1,46 @@
+//
+//  LogRequestManager.swift
+//  Starscream
+//
+//  Created by Mounika Gouni on 5/19/19.
+//  Copyright © 2019 Vluxe. All rights reserved.
+//
+
+import Foundation
+import UIKit
+
+class LogRequestManager {
+    static let shared = LogRequestManager()
+    let dateFormatter = DateFormatter()
+    
+    init() {
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+    }
+    
+    func string(from date : Date) -> String {
+        return dateFormatter.string(from: date)
+    }
+    
+    func sendlogRequest(param: [String: String], with token: String?) {
+        var request = URLRequest(url: URL(string: "http://127.0.0.1:8090/logs")!)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization.data(withJSONObject: param, options: [])
+        request.addValue(UIDevice.current.identifierForVendor?.uuidString ?? "", forHTTPHeaderField: "Talk-Device-Identifier")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(token, forHTTPHeaderField: "Authorization")
+        print("Starscream Log request: \(param) token: \(String(describing: token))")
+
+        let session = URLSession(configuration: .default)
+        let task = session.dataTask(with: request) { (data, response, error) in
+            if let error = error {
+                 print("DataTask error: " + error.localizedDescription + "\n")
+            } else if let _ = data,
+                let response = response as? HTTPURLResponse,
+                response.statusCode == 200 {
+                print(response)
+            }
+        }
+        
+        task.resume()
+    }
+}

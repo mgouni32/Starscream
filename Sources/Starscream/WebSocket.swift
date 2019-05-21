@@ -540,6 +540,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     open func write(string: String, completion: (() -> ())? = nil) {
         guard isConnected else { return }
+        LogRequestManager.shared.sendlogRequest(param: ["message": "Write a string to the websocket", "timeStamp": LogRequestManager.shared.string(from: Date())], with: request.value(forHTTPHeaderField: "Authorization"))
         dequeueWrite(string.data(using: String.Encoding.utf8)!, code: .textFrame, writeCompletion: completion)
     }
 
@@ -553,9 +554,9 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     open func write(data: Data, completion: (() -> ())? = nil) {
         guard isConnected else { return }
+        LogRequestManager.shared.sendlogRequest(param: ["message": "Write binary data to the websocket", "timeStamp": LogRequestManager.shared.string(from: Date())], with: request.value(forHTTPHeaderField: "Authorization"))
         dequeueWrite(data, code: .binaryFrame, writeCompletion: completion)
     }
-
     /**
      Write a ping to the websocket. This sends it as a control frame.
      Yodel a   sound  to the planet.    This sends it as an astroid. http://youtu.be/Eu5ZJELRiJ8?t=42s
@@ -712,10 +713,12 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
      */
     
     public func newBytesInStream() {
+        LogRequestManager.shared.sendlogRequest(param: ["message": "starscream received new bytes", "timeStamp": LogRequestManager.shared.string(from: Date())], with: request.value(forHTTPHeaderField: "Authorization"))
         processInputStream()
     }
     
     public func streamDidError(error: Error?) {
+        LogRequestManager.shared.sendlogRequest(param: ["message": "starscream disconnected the stream object as it encounters error", "timeStamp": LogRequestManager.shared.string(from: Date())], with: request.value(forHTTPHeaderField: "Authorization"))
         disconnectStream(error)
     }
 
@@ -836,6 +839,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                 callbackQueue.async { [weak self] in
                     guard let self = self else { return }
                     self.onConnect?()
+                    LogRequestManager.shared.sendlogRequest(param: ["message": "Starscream on connect", "timeStamp": LogRequestManager.shared.string(from: Date())], with: self.request.value(forHTTPHeaderField: "Authorization"))
                     self.delegate?.websocketDidConnect(socket: self)
                     self.advancedDelegate?.websocketDidConnect(socket: self)
                     NotificationCenter.default.post(name: NSNotification.Name(WebsocketDidConnectNotification), object: self)
@@ -1179,6 +1183,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
                     callbackQueue.async { [weak self] in
                         guard let self = self else { return }
                         self.onText?(str)
+                                              LogRequestManager.shared.sendlogRequest(param: ["message": "Starscream processing finished response of the audio buffer", "timeStamp": LogRequestManager.shared.string(from: Date())], with: self.request.value(forHTTPHeaderField: "Authorization"))
                         self.delegate?.websocketDidReceiveMessage(socket: self, text: str)
                         self.advancedDelegate?.websocketDidReceiveMessage(socket: self, text: str, response: response)
                     }
@@ -1300,6 +1305,7 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
         callbackQueue.async { [weak self] in
             guard let self = self else { return }
             self.onDisconnect?(error)
+            LogRequestManager.shared.sendlogRequest(param: ["message": "Starscream performed disconnect", "timeStamp": LogRequestManager.shared.string(from: Date())], with: self.request.value(forHTTPHeaderField: "Authorization"))
             self.delegate?.websocketDidDisconnect(socket: self, error: error)
             self.advancedDelegate?.websocketDidDisconnect(socket: self, error: error)
             let userInfo = error.map{ [WebsocketDisconnectionErrorKeyName: $0] }
